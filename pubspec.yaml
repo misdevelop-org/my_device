@@ -1,6 +1,6 @@
 name: my_device
 description: Agile and easy access to device information and internet connection alerts
-version: 0.0.7
+version: 0.0.8
 homepage: https://github.com/DameAri/my_device
 
 environment:
@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  connectivity_plus: ^2.2.0
-  device_info_plus: ^3.2.1
+  connectivity_plus: ^2.2.1
+  device_info_plus: ^3.2.2
   handy_dialogs: ^0.0.5
 
 dev_dependencies:

@@ -1,3 +1,6 @@
+## 0.0.8
+MacOS fixes
+
 ## 0.0.7
  Web fixes
  

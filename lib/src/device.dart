@@ -142,7 +142,7 @@ class Device {
 
         deviceInfoData['infoDevice'] = androidInfo.toMap();
         deviceInfoData['id'] = androidInfo.androidId;
-      } else {
+      } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
         if (kDebugMode) {
@@ -151,6 +151,15 @@ class Device {
 
         deviceInfoData['infoDevice'] = iosInfo.toMap();
         deviceInfoData['id'] = iosInfo.identifierForVendor;
+      } else if (Platform.isMacOS) {
+        MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
+
+        if (kDebugMode) {
+          print('Running on ${macInfo.toMap()}');
+        }
+
+        deviceInfoData['infoDevice'] = macInfo.toMap();
+        deviceInfoData['id'] = macInfo.systemGUID;
       }
     }
     return deviceInfoData;
