@@ -1,3 +1,7 @@
+## 0.1.0
+
+- Updated to the latest version of Connectivity and Device Info
+
 ## 0.0.8
 MacOS fixes
 

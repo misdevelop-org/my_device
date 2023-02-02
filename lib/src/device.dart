@@ -4,7 +4,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:handy_dialogs/handy_dialogs.dart';
 import 'package:my_device/src/platform.dart';
 
 ///Access to device information and internet connection
@@ -57,16 +56,12 @@ class Device {
 
   ///Internet connection alerts
   static setConnectivity(ConnectivityResult connect) {
-    if (connect == ConnectivityResult.none &&
-        instance.connectivity != ConnectivityResult.none) {
-      showText(instance.context, "No internet connection", '',
-          seconds: 4, backgroundColor: Colors.amber[800], isFlash: false);
+    if (connect == ConnectivityResult.none && instance.connectivity != ConnectivityResult.none) {
+      showText(instance.context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
     }
 
-    if (connect != ConnectivityResult.none &&
-        instance.connectivity == ConnectivityResult.none) {
-      showText(instance.context, "Connection reestablish!", '',
-          seconds: 2, backgroundColor: Colors.green[800]);
+    if (connect != ConnectivityResult.none && instance.connectivity == ConnectivityResult.none) {
+      showText(instance.context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
     }
 
     instance.connectivity = connect;
@@ -87,9 +82,8 @@ class Device {
     instance.isWeb = kIsWeb;
     instance.isAndroid = kIsWeb ? false : Platform.isAndroid;
     instance.isIOS = kIsWeb ? false : Platform.isIOS;
-    instance.isTablet = (sqrt((instance.screenWidth * instance.screenWidth) +
-            (instance.screenHeigth * instance.screenHeigth))) >
-        1100;
+    instance.isTablet =
+        (sqrt((instance.screenWidth * instance.screenWidth) + (instance.screenHeigth * instance.screenHeigth))) > 1100;
     instance.backgroundAssetPath = 'assets/triangleDarkPattern.jpg';
     getInfo();
     if (assetBackground != null) instance.backgroundAssetPath = assetBackground;
@@ -140,28 +134,46 @@ class Device {
           print('Running on ${androidInfo.model}');
         }
 
-        deviceInfoData['infoDevice'] = androidInfo.toMap();
-        deviceInfoData['id'] = androidInfo.androidId;
+        deviceInfoData['infoDevice'] = androidInfo.data;
+        deviceInfoData['id'] = androidInfo.id;
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
         if (kDebugMode) {
-          print('Running on ${iosInfo.toMap()}');
+          print('Running on ${iosInfo.data}');
         }
 
-        deviceInfoData['infoDevice'] = iosInfo.toMap();
+        deviceInfoData['infoDevice'] = iosInfo.data;
         deviceInfoData['id'] = iosInfo.identifierForVendor;
       } else if (Platform.isMacOS) {
         MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
 
         if (kDebugMode) {
-          print('Running on ${macInfo.toMap()}');
+          print('Running on ${macInfo.data}');
         }
 
-        deviceInfoData['infoDevice'] = macInfo.toMap();
+        deviceInfoData['infoDevice'] = macInfo.data;
         deviceInfoData['id'] = macInfo.systemGUID;
       }
     }
     return deviceInfoData;
+  }
+
+  static void showText(BuildContext context, String title, String subtitle,
+      {required int seconds, Color? backgroundColor}) {
+    //Show dialog
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Column(
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+      duration: Duration(seconds: seconds),
+      backgroundColor: backgroundColor,
+    ));
   }
 }
