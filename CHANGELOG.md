@@ -1,6 +1,10 @@
 ## 0.1.0
 
-- Updated to the latest version of Connectivity and Device Info
+- Updated to the latest version of Device Info
+
+## 0.0.9
+
+- Added support for the latest version of Connectivity
 
 ## 0.0.8
 MacOS fixes

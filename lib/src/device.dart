@@ -134,25 +134,25 @@ class Device {
           print('Running on ${androidInfo.model}');
         }
 
-        deviceInfoData['infoDevice'] = androidInfo.data;
+        deviceInfoData['infoDevice'] = androidInfo.toMap();
         deviceInfoData['id'] = androidInfo.id;
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
         if (kDebugMode) {
-          print('Running on ${iosInfo.data}');
+          print('Running on ${iosInfo.toMap()}');
         }
 
-        deviceInfoData['infoDevice'] = iosInfo.data;
+        deviceInfoData['infoDevice'] = iosInfo.toMap();
         deviceInfoData['id'] = iosInfo.identifierForVendor;
       } else if (Platform.isMacOS) {
         MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
 
         if (kDebugMode) {
-          print('Running on ${macInfo.data}');
+          print('Running on ${macInfo.toMap()}');
         }
 
-        deviceInfoData['infoDevice'] = macInfo.data;
+        deviceInfoData['infoDevice'] = macInfo.toMap();
         deviceInfoData['id'] = macInfo.systemGUID;
       }
     }
