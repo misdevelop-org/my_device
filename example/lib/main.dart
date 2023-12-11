@@ -39,50 +39,144 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   l() async {
-    deviceInfo = await Device.getDeviceInfo();
+    deviceInfo = await DeviceManager.getDeviceInfo();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    Device(context, assetBackground: 'assets/background.png');
-    var device = Device.instance.mediaQuery;
-    var screenHeigth = Device.i.screenHeigth;
-    var screenWidth = Device.i.screenWidth;
-    var backgroundAssetPath = Device.i.backgroundAssetPath;
-    var padding = Device.i.viewPadding;
-    var webDevice = Device.i.isWeb;
-    var androidDevice = Device.i.isAndroid;
-    var iosDevice = Device.i.isIOS;
+    // Set the
+    DeviceManager(context,
+        responsiveBreakpoints: const ResponsiveBreakpoints(
+          mobile: 500,
+          desktop: 1000,
+        ));
+
+    //Get the MediaQuery from the given context
+    final mediaQuery = DeviceManager.mediaQuery;
+
+    // Get the device screen height
+    final screenHeight = DeviceManager.screenHeight;
+
+    // Get the device screen width
+    final screenWidth = DeviceManager.screenWidth;
+
+    // You can also use the context directly to get width and height
+    final width = context.width;
+    final height = context.height;
+
+    // Padding from physical hinges or islands
+    var padding = DeviceManager.viewPadding;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My device'),
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 30),
-          child: Row(
-            children: [
-              if (androidDevice)
-                const Icon(
-                  Icons.android_rounded,
-                  color: Colors.white,
-                ),
-              if (iosDevice) const Text('IOS'),
-              if (webDevice) const Text('Web'),
-            ],
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('My device - ${DeviceManager.platformName}  '),
+            Icon(DeviceManager.platformIcon, color: Colors.black),
+          ],
         ),
       ),
-      backgroundColor: const Color(0xFF040029),
+      backgroundColor: const Color(0xFFc1c1c1),
       body: Stack(
         children: <Widget>[
           Padding(padding: padding),
-          Center(child: Image.asset(backgroundAssetPath)),
           Flex(
             direction: Axis.vertical,
             children: [
               Expanded(
-                flex: 5,
+                flex: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Card(
+                    child: Text(
+                      'Device Pixel Ratio: ' + mediaQuery.devicePixelRatio.toString(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ), //Pixel ratio
+              Wrap(
+                alignment: WrapAlignment.center,
+                runAlignment: WrapAlignment.center,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  SizedBox(
+                    width: screenWidth / 2.3,
+                    child: Card(
+                        color: Colors.teal.withOpacity(.96),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Screen Width: ' + screenWidth.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              '\nScreen Height: ' + screenHeight.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              '\nDevice Orientation: ' + mediaQuery.orientation.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        )),
+                  ), //teal container
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: width / 2.3,
+                        child: Card(
+                          color: Colors.amber[700]!.withOpacity(.96),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: Text(
+                            'Connectivity: ' + DeviceManager.connectivity.toString(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: width / 2.3,
+                        child: Card(
+                          color: Colors.green[700]!.withOpacity(.96),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: Column(
+                            children: [
+                              Text(
+                                'View type: ' +
+                                    (DeviceManager.isDesktopView
+                                        ? 'Desktop'
+                                        : DeviceManager.isTabletView
+                                            ? 'Tablet'
+                                            : 'Mobile'),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const Text(
+                                "\nBreakpoints>>>\nDesktop: 1000\nMobile: 500",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ), //Yellow container
+                ],
+              ), //Teal & yellow containers
+              SizedBox(
+                height: height / 3,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
@@ -93,47 +187,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
                 ),
               ), //Device Info
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Card(
-                      child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 55, right: 55, top: 14),
-                    child: Text(
-                      'Device Pixel Ratio: ' +
-                          device.devicePixelRatio.toString(),
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
-                ),
-              ), //Pixel ratio
-              Expanded(
-                flex: 3,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      width: screenWidth / 2.3,
-                      height: screenHeigth / 2.6,
-                      child: Card(
-                        color: Colors.teal.withOpacity(.96),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ), //teal container
-                    SizedBox(
-                      width: screenWidth / 2.3,
-                      height: screenHeigth / 2.6,
-                      child: Card(
-                        color: Colors.amber[700]!.withOpacity(.96),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ), //Yellow container
-                  ],
-                ),
-              ), //Teal & yellow containers
             ],
           ),
         ],
@@ -152,8 +205,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
 Widget buildEntry(key, e) {
   if (e is! Map) {
+    if (e == null) {
+      return ListTile(
+        title: Text(key ?? ''),
+      );
+    }
     return ListTile(
-      subtitle: Text(key),
+      subtitle: Text(key ?? ''),
       title: Text(e.toString()),
     );
   } else {

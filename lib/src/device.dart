@@ -1,97 +1,165 @@
-import 'dart:math';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_device/src/platform.dart';
+import 'package:my_device/src/responsive_breakpoints.dart';
 
 ///Access to device information and internet connection
-class Device {
-  ///Image Background Path
-  String backgroundAssetPath = '';
+class DeviceManager {
+  static bool get isDesktopView => width >= responsiveBreakpoints.desktop;
+  static bool get isTabletView => width >= responsiveBreakpoints.mobile && width < responsiveBreakpoints.desktop;
+  static bool get isPhoneView => width < responsiveBreakpoints.mobile;
+  static double get width => MediaQuery.of(context).size.width;
+  static double get height => MediaQuery.of(context).size.height;
 
-  ///Device screen height
-  double screenHeigth = 0;
+  ///Responsive breakpoints
+  ResponsiveBreakpoints _responsiveBreakpoints = const ResponsiveBreakpoints();
 
-  ///Device screen width
-  double screenWidth = 0;
-
-  ///Is Web environment
-  bool isWeb = false;
+  ///Is native Web
+  bool _isWeb = false;
 
   ///Is native Android
-  bool isAndroid = false;
+  bool _isAndroid = false;
 
   ///Is native IOS
-  bool isIOS = false;
+  bool _isIOS = false;
 
-  ///Is Tablet size
-  bool isTablet = false;
+  ///Is native MacOS
+  bool _isMacOS = false;
 
-  ///Default padding of handle bars, notches and others
-  EdgeInsets viewPadding = EdgeInsets.zero;
+  ///Is native Windows
+  bool _isWindows = false;
 
-  ///Device MediaQuery easy access
-  late MediaQueryData mediaQuery;
+  ///Is native Linux
+  bool _isLinux = false;
 
   ///Must be initialized every time you need to refresh the information
-  late BuildContext context;
+  late BuildContext _context;
 
   ///All information from Device Info Plugin
-  Map<String, dynamic>? deviceInfo;
+  Map<String, dynamic>? _deviceInfo;
 
   ///Internet connection state
   ///Has 3 types of connection:
   ///Wifi, mobile, none
-  ConnectivityResult? connectivity;
+  ConnectivityResult? _connectivity;
+
+  // Getters
+
+  ///Device screen height
+  static double get screenHeight => MediaQuery.of(context).size.height;
+
+  ///Device screen width
+  static double get screenWidth => MediaQuery.of(context).size.width;
+
+  ///Is Web environment
+  static bool get isWeb => DeviceManager.i._isWeb;
+
+  ///Is native Android
+  static bool get isAndroid => DeviceManager.i._isAndroid;
+
+  ///Is native IOS
+  static bool get isIOS => DeviceManager.i._isIOS;
+
+  ///Is native MacOS
+  static bool get isMacOS => DeviceManager.i._isMacOS;
+
+  ///Is native Windows
+  static bool get isWindows => DeviceManager.i._isWindows;
+
+  ///Is native Linux
+  static bool get isLinux => DeviceManager.i._isLinux;
+
+  ///Default padding of handle bars, notches and others
+  static EdgeInsets get viewPadding => MediaQuery.of(context).viewPadding;
+
+  ///Device MediaQuery easy access
+  static MediaQueryData get mediaQuery => MediaQuery.of(context);
+
+  ///All information from Device Info Plugin
+  static Map<String, dynamic>? get deviceInfo => DeviceManager.i._deviceInfo;
+
+  ///Internet connection state
+  ///Has 3 types of connection:
+  ///Wifi, mobile, none
+  static ConnectivityResult? get connectivity => DeviceManager.i._connectivity;
+
+  ///context getter
+  static BuildContext get context => DeviceManager.i._context;
+
+  ///Responsive breakpoints
+  static ResponsiveBreakpoints get responsiveBreakpoints => DeviceManager.i._responsiveBreakpoints;
+
+  ///Current platform name
+  static String get platformName {
+    if (isWeb) return 'Web';
+    if (isAndroid) return 'Android';
+    if (isIOS) return 'IOS';
+    if (isMacOS) return 'MacOS';
+    if (isWindows) return 'Windows';
+    if (isLinux) return 'Linux';
+    return 'Unknown';
+  }
+
+  ///Current platform icon
+  static IconData get platformIcon {
+    if (isWeb) return Icons.web_rounded;
+    if (isAndroid) return Icons.android_rounded;
+    if (isIOS) return Icons.apple_rounded;
+    if (isMacOS) return Icons.desktop_mac_rounded;
+    if (isWindows) return Icons.laptop_windows_rounded;
+    if (isLinux) return Icons.laptop_chromebook_rounded;
+    return Icons.help_rounded;
+  }
 
   ///Shorter access to instance
-  static Device get i => instance;
+  static DeviceManager get device => DeviceManager.i;
+
+  ///Shorter access to instance
+  static DeviceManager get i => instance;
 
   ///Hold all device information
-  static final Device instance = Device._internal();
+  static final DeviceManager instance = DeviceManager._internal();
 
-  Device._internal();
+  DeviceManager._internal();
 
   ///Internet connection alerts
   static setConnectivity(ConnectivityResult connect) {
-    if (connect == ConnectivityResult.none && instance.connectivity != ConnectivityResult.none) {
-      showText(instance.context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
+    if (connect == ConnectivityResult.none && instance._connectivity != ConnectivityResult.none) {
+      showText(context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
     }
 
-    if (connect != ConnectivityResult.none && instance.connectivity == ConnectivityResult.none) {
-      showText(instance.context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
+    if (connect != ConnectivityResult.none && instance._connectivity == ConnectivityResult.none) {
+      showText(context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
     }
 
-    instance.connectivity = connect;
+    instance._connectivity = connect;
   }
 
-  ///Set connectivity
-  static setBack(ConnectivityResult connect) {
-    instance.connectivity = connect;
-  }
-
-  factory Device(context, {String? assetBackground}) {
-    instance.context = context;
-
-    instance.mediaQuery = MediaQuery.of(context);
-    instance.screenWidth = MediaQuery.of(context).size.width;
-    instance.screenHeigth = MediaQuery.of(context).size.height;
-    instance.viewPadding = MediaQuery.of(context).viewPadding;
-    instance.isWeb = kIsWeb;
-    instance.isAndroid = kIsWeb ? false : Platform.isAndroid;
-    instance.isIOS = kIsWeb ? false : Platform.isIOS;
-    instance.isTablet =
-        (sqrt((instance.screenWidth * instance.screenWidth) + (instance.screenHeigth * instance.screenHeigth))) > 1100;
-    instance.backgroundAssetPath = 'assets/triangleDarkPattern.jpg';
+  static void configure({BuildContext? context, ResponsiveBreakpoints? responsiveBreakpoints}) async {
+    if (context != null) instance._context = context;
+    if (responsiveBreakpoints != null) instance._responsiveBreakpoints = responsiveBreakpoints;
+    instance._isWeb = kIsWeb;
+    instance._isAndroid = kIsWeb ? false : Platform.isAndroid;
+    instance._isIOS = kIsWeb ? false : Platform.isIOS;
+    instance._isMacOS = kIsWeb ? false : Platform.isMacOS;
+    instance._isWindows = kIsWeb ? false : TargetPlatform.windows == defaultTargetPlatform;
+    instance._isLinux = kIsWeb ? false : TargetPlatform.linux == defaultTargetPlatform;
     getInfo();
-    if (assetBackground != null) instance.backgroundAssetPath = assetBackground;
+    instance._connectivity = await Connectivity().checkConnectivity();
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      setConnectivity(result);
+    });
+  }
+
+  factory DeviceManager(context, {ResponsiveBreakpoints? responsiveBreakpoints}) {
+    configure(context: context, responsiveBreakpoints: responsiveBreakpoints);
     return instance;
   }
   static Map<String, dynamic> _readWebBrowserInfo(WebBrowserInfo data) {
     return <String, dynamic>{
-      'browserName': describeEnum(data.browserName),
+      'browserName': data.browserName.name,
       'appCodeName': data.appCodeName,
       'appName': data.appName,
       'appVersion': data.appVersion,
@@ -110,7 +178,7 @@ class Device {
   }
 
   static getInfo() async {
-    instance.deviceInfo = await getDeviceInfo();
+    instance._deviceInfo = await getDeviceInfo();
   }
 
   ///Device info depending on the actual platform
@@ -134,25 +202,25 @@ class Device {
           print('Running on ${androidInfo.model}');
         }
 
-        deviceInfoData['infoDevice'] = androidInfo.toMap();
+        deviceInfoData['infoDevice'] = androidInfo.data;
         deviceInfoData['id'] = androidInfo.id;
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
 
         if (kDebugMode) {
-          print('Running on ${iosInfo.toMap()}');
+          print('Running on ${iosInfo.data}');
         }
 
-        deviceInfoData['infoDevice'] = iosInfo.toMap();
+        deviceInfoData['infoDevice'] = iosInfo.data;
         deviceInfoData['id'] = iosInfo.identifierForVendor;
       } else if (Platform.isMacOS) {
         MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
 
         if (kDebugMode) {
-          print('Running on ${macInfo.toMap()}');
+          print('Running on ${macInfo.data}');
         }
 
-        deviceInfoData['infoDevice'] = macInfo.toMap();
+        deviceInfoData['infoDevice'] = macInfo.data;
         deviceInfoData['id'] = macInfo.systemGUID;
       }
     }
@@ -176,4 +244,53 @@ class Device {
       backgroundColor: backgroundColor,
     ));
   }
+}
+
+extension DeviceExtension on BuildContext {
+  ///Device screen height
+  double get screenHeight => DeviceManager.screenHeight;
+
+  ///Device screen width
+  double get screenWidth => DeviceManager.screenWidth;
+
+  ///Device screen height
+  double get height => DeviceManager.height;
+
+  ///Device screen width
+  double get width => DeviceManager.width;
+
+  ///Is Web environment
+  bool get isWeb => DeviceManager.isWeb;
+
+  ///Is native Android
+  bool get isAndroid => DeviceManager.isAndroid;
+
+  ///Is native IOS
+  bool get isIOS => DeviceManager.isIOS;
+
+  ///Is native MacOS
+  bool get isMacOS => DeviceManager.isMacOS;
+
+  ///Is native Windows
+  bool get isWindows => DeviceManager.isWindows;
+
+  ///Is native Linux
+  bool get isLinux => DeviceManager.isLinux;
+
+  ///Default padding of handle bars, notches and others
+  EdgeInsets get viewPadding => DeviceManager.viewPadding;
+
+  ///Device MediaQuery easy access
+  MediaQueryData get mediaQuery => DeviceManager.mediaQuery;
+
+  ///All information from Device Info Plugin
+  Map<String, dynamic>? get deviceInfo => DeviceManager.deviceInfo;
+
+  ///Internet connection state
+  ///Has 3 types of connection:
+  ///Wifi, mobile, none
+  ConnectivityResult? get connectivity => DeviceManager.connectivity;
+
+  ///Shorter access to instance
+  DeviceManager get device => DeviceManager.i;
 }
