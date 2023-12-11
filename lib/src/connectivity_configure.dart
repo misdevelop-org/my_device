@@ -28,9 +28,11 @@ class ConnectivityConfigure {
     bool? useDefaultBehavior,
   }) {
     return ConnectivityConfigure(
-      onConnectivityChanged: onConnectivityChanged ?? this.onConnectivityChanged,
+      onConnectivityChanged:
+          onConnectivityChanged ?? this.onConnectivityChanged,
       onConnectionLost: onConnectionLost ?? this.onConnectionLost,
-      onConnectionReestablished: onConnectionReestablished ?? this.onConnectionReestablished,
+      onConnectionReestablished:
+          onConnectionReestablished ?? this.onConnectionReestablished,
       useDefaultBehavior: useDefaultBehavior ?? this.useDefaultBehavior,
     );
   }

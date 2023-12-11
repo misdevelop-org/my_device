@@ -9,7 +9,9 @@ import 'package:my_device/src/responsive_breakpoints.dart';
 ///Access to device information and internet connection
 class DeviceManager {
   static bool get isDesktopView => width >= responsiveBreakpoints.desktop;
-  static bool get isTabletView => width >= responsiveBreakpoints.mobile && width < responsiveBreakpoints.desktop;
+  static bool get isTabletView =>
+      width >= responsiveBreakpoints.mobile &&
+      width < responsiveBreakpoints.desktop;
   static bool get isPhoneView => width < responsiveBreakpoints.mobile;
   static double get width => MediaQuery.of(context).size.width;
   static double get height => MediaQuery.of(context).size.height;
@@ -93,7 +95,8 @@ class DeviceManager {
   static BuildContext get context => DeviceManager.i._context;
 
   ///Responsive breakpoints
-  static ResponsiveBreakpoints get responsiveBreakpoints => DeviceManager.i._responsiveBreakpoints;
+  static ResponsiveBreakpoints get responsiveBreakpoints =>
+      DeviceManager.i._responsiveBreakpoints;
 
   ///Current platform name
   static String get platformName {
@@ -127,26 +130,31 @@ class DeviceManager {
 
   ///On connection lost callback
   static set onConnectionLost(Function callback) {
-    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectionLost: callback) ??
-        ConnectivityConfigure(onConnectionLost: callback);
+    instance._connectivityConfigure =
+        instance._connectivityConfigure?.copyWith(onConnectionLost: callback) ??
+            ConnectivityConfigure(onConnectionLost: callback);
   }
 
   ///On connection reestablished callback
   static set onConnectionReestablished(Function callback) {
-    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectionReestablished: callback) ??
+    instance._connectivityConfigure = instance._connectivityConfigure
+            ?.copyWith(onConnectionReestablished: callback) ??
         ConnectivityConfigure(onConnectionReestablished: callback);
   }
 
   ///On connectivity changed callback
-  static set onConnectivityChanged(Function(ConnectivityResult result) callback) {
-    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectivityChanged: callback) ??
+  static set onConnectivityChanged(
+      Function(ConnectivityResult result) callback) {
+    instance._connectivityConfigure = instance._connectivityConfigure
+            ?.copyWith(onConnectivityChanged: callback) ??
         ConnectivityConfigure(onConnectivityChanged: callback);
   }
 
   ///Use default behavior
   static set useDefaultBehavior(bool value) {
-    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(useDefaultBehavior: value) ??
-        ConnectivityConfigure(useDefaultBehavior: value);
+    instance._connectivityConfigure =
+        instance._connectivityConfigure?.copyWith(useDefaultBehavior: value) ??
+            ConnectivityConfigure(useDefaultBehavior: value);
   }
 
   ///Hold all device information
@@ -156,17 +164,21 @@ class DeviceManager {
 
   ///Internet connection alerts
   static setConnectivity(ConnectivityResult connect) {
-    if (connect == ConnectivityResult.none && instance._connectivity != ConnectivityResult.none) {
+    if (connect == ConnectivityResult.none &&
+        instance._connectivity != ConnectivityResult.none) {
       if (instance._connectivityConfigure?.useDefaultBehavior ?? false) {
-        showText(context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
+        showText(context, "No internet connection", '',
+            seconds: 4, backgroundColor: Colors.amber[800]);
       } else {
         instance._connectivityConfigure?.onConnectionLost?.call();
       }
     }
 
-    if (connect != ConnectivityResult.none && instance._connectivity == ConnectivityResult.none) {
+    if (connect != ConnectivityResult.none &&
+        instance._connectivity == ConnectivityResult.none) {
       if (instance._connectivityConfigure?.useDefaultBehavior ?? false) {
-        showText(context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
+        showText(context, "Connection reestablish!", '',
+            seconds: 2, backgroundColor: Colors.green[800]);
       } else {
         instance._connectivityConfigure?.onConnectionReestablished?.call();
       }
@@ -197,14 +209,18 @@ class DeviceManager {
     ConnectivityConfigure? connectivityConfigure,
   ) async {
     if (context != null) instance._context = context;
-    if (responsiveBreakpoints != null) instance._responsiveBreakpoints = responsiveBreakpoints;
-    if (connectivityConfigure != null) instance._connectivityConfigure = connectivityConfigure;
+    if (responsiveBreakpoints != null)
+      instance._responsiveBreakpoints = responsiveBreakpoints;
+    if (connectivityConfigure != null)
+      instance._connectivityConfigure = connectivityConfigure;
     instance._isWeb = kIsWeb;
     instance._isAndroid = kIsWeb ? false : Platform.isAndroid;
     instance._isIOS = kIsWeb ? false : Platform.isIOS;
     instance._isMacOS = kIsWeb ? false : Platform.isMacOS;
-    instance._isWindows = kIsWeb ? false : TargetPlatform.windows == defaultTargetPlatform;
-    instance._isLinux = kIsWeb ? false : TargetPlatform.linux == defaultTargetPlatform;
+    instance._isWindows =
+        kIsWeb ? false : TargetPlatform.windows == defaultTargetPlatform;
+    instance._isLinux =
+        kIsWeb ? false : TargetPlatform.linux == defaultTargetPlatform;
     getInfo();
     instance._connectivity = await Connectivity().checkConnectivity();
   }
@@ -293,7 +309,9 @@ class DeviceManager {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Column(
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           Text(
             subtitle,
             style: const TextStyle(fontSize: 14),
