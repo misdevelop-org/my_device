@@ -1,6 +1,6 @@
 name: my_device
 description: Agile and easy access to device information and internet connection alerts
-version: 0.1.0
+version: 0.2.1
 homepage: https://github.com/misdevelop-org/my_device
 
 environment:
