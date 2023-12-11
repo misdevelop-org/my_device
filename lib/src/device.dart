@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_device/src/connectivity_configure.dart';
 import 'package:my_device/src/platform.dart';
 import 'package:my_device/src/responsive_breakpoints.dart';
 
@@ -44,6 +45,9 @@ class DeviceManager {
   ///Has 3 types of connection:
   ///Wifi, mobile, none
   ConnectivityResult? _connectivity;
+
+  ///Connectivity configuration
+  ConnectivityConfigure? _connectivityConfigure;
 
   // Getters
 
@@ -119,6 +123,32 @@ class DeviceManager {
   ///Shorter access to instance
   static DeviceManager get i => instance;
 
+  //Setters
+
+  ///On connection lost callback
+  static set onConnectionLost(Function callback) {
+    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectionLost: callback) ??
+        ConnectivityConfigure(onConnectionLost: callback);
+  }
+
+  ///On connection reestablished callback
+  static set onConnectionReestablished(Function callback) {
+    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectionReestablished: callback) ??
+        ConnectivityConfigure(onConnectionReestablished: callback);
+  }
+
+  ///On connectivity changed callback
+  static set onConnectivityChanged(Function(ConnectivityResult result) callback) {
+    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(onConnectivityChanged: callback) ??
+        ConnectivityConfigure(onConnectivityChanged: callback);
+  }
+
+  ///Use default behavior
+  static set useDefaultBehavior(bool value) {
+    instance._connectivityConfigure = instance._connectivityConfigure?.copyWith(useDefaultBehavior: value) ??
+        ConnectivityConfigure(useDefaultBehavior: value);
+  }
+
   ///Hold all device information
   static final DeviceManager instance = DeviceManager._internal();
 
@@ -127,19 +157,48 @@ class DeviceManager {
   ///Internet connection alerts
   static setConnectivity(ConnectivityResult connect) {
     if (connect == ConnectivityResult.none && instance._connectivity != ConnectivityResult.none) {
-      showText(context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
+      if (instance._connectivityConfigure?.useDefaultBehavior ?? false) {
+        showText(context, "No internet connection", '', seconds: 4, backgroundColor: Colors.amber[800]);
+      } else {
+        instance._connectivityConfigure?.onConnectionLost?.call();
+      }
     }
 
     if (connect != ConnectivityResult.none && instance._connectivity == ConnectivityResult.none) {
-      showText(context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
+      if (instance._connectivityConfigure?.useDefaultBehavior ?? false) {
+        showText(context, "Connection reestablish!", '', seconds: 2, backgroundColor: Colors.green[800]);
+      } else {
+        instance._connectivityConfigure?.onConnectionReestablished?.call();
+      }
     }
 
     instance._connectivity = connect;
   }
 
-  static void configure({BuildContext? context, ResponsiveBreakpoints? responsiveBreakpoints}) async {
+  static void configure({
+    BuildContext? context,
+    ResponsiveBreakpoints? responsiveBreakpoints,
+    ConnectivityConfigure? connectivityConfigure,
+  }) async {
+    await _init(context, responsiveBreakpoints, connectivityConfigure);
+    listenConnectivityChanges();
+  }
+
+  static void listenConnectivityChanges() {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      setConnectivity(result);
+      instance._connectivityConfigure?.onConnectivityChanged?.call(result);
+    });
+  }
+
+  static Future<void> _init(
+    BuildContext? context,
+    ResponsiveBreakpoints? responsiveBreakpoints,
+    ConnectivityConfigure? connectivityConfigure,
+  ) async {
     if (context != null) instance._context = context;
     if (responsiveBreakpoints != null) instance._responsiveBreakpoints = responsiveBreakpoints;
+    if (connectivityConfigure != null) instance._connectivityConfigure = connectivityConfigure;
     instance._isWeb = kIsWeb;
     instance._isAndroid = kIsWeb ? false : Platform.isAndroid;
     instance._isIOS = kIsWeb ? false : Platform.isIOS;
@@ -148,13 +207,14 @@ class DeviceManager {
     instance._isLinux = kIsWeb ? false : TargetPlatform.linux == defaultTargetPlatform;
     getInfo();
     instance._connectivity = await Connectivity().checkConnectivity();
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      setConnectivity(result);
-    });
   }
 
-  factory DeviceManager(context, {ResponsiveBreakpoints? responsiveBreakpoints}) {
-    configure(context: context, responsiveBreakpoints: responsiveBreakpoints);
+  factory DeviceManager(
+    context, {
+    ResponsiveBreakpoints? responsiveBreakpoints,
+    ConnectivityConfigure? connectivityConfigure,
+  }) {
+    _init(context, responsiveBreakpoints, connectivityConfigure);
     return instance;
   }
   static Map<String, dynamic> _readWebBrowserInfo(WebBrowserInfo data) {

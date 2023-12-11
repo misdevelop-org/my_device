@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'my_Device',
+      title: 'My Device',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
@@ -30,27 +30,40 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Map<String, dynamic> deviceInfo = {};
-  @override
-  void initState() {
-    super.initState();
-
-    l();
-  }
-
-  l() async {
-    deviceInfo = await DeviceManager.getDeviceInfo();
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Set the
-    DeviceManager(context,
-        responsiveBreakpoints: const ResponsiveBreakpoints(
-          mobile: 500,
-          desktop: 1000,
-        ));
+    // Set the responsive breakpoints
+    DeviceManager.configure(
+      context: context,
+      responsiveBreakpoints: const ResponsiveBreakpoints(
+        mobile: 500,
+        desktop: 1000,
+      ),
+      connectivityConfigure: ConnectivityConfigure(
+        onConnectivityChanged: (connectivity) {
+          print('Connectivity changed: $connectivity');
+        },
+        onConnectionLost: () {
+          print('Connection lost');
+        },
+        onConnectionReestablished: () {
+          print('Connection reestablished');
+        },
+      ),
+    );
+
+    // Or set a custom function after the configure
+    DeviceManager.onConnectionLost = () {
+      print('Connection lost');
+    };
+
+    DeviceManager.onConnectionReestablished = () {
+      print('Connection reestablished');
+    };
+
+    DeviceManager.onConnectivityChanged = (connectivity) {
+      print('Connectivity changed: $connectivity');
+    };
 
     //Get the MediaQuery from the given context
     final mediaQuery = DeviceManager.mediaQuery;
@@ -182,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Card(
                       child: ListView(
                     children: [
-                      displayEntry(deviceInfo),
+                      displayEntry(context.deviceInfo!),
                     ],
                   )),
                 ),

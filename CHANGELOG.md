@@ -1,6 +1,9 @@
 ## 0.1.0
 
-- Updated to the latest version of Device Info
+- Included extension to use any method through `context`
+- Responsive breakpoints and Connectivity configuration
+- Added functions and improved documentation
+- Updated to the latest version of Device Info Plus and Connectivity Plus
 
 ## 0.0.9
 
